@@ -1,0 +1,33 @@
+version: '3.7'
+
+services:
+  db:
+    image: postgres:12-alpine
+    container_name: db
+    environment:
+      POSTGRES_USER: miyoung
+      POSTGRES_PASSWORD: miyoung
+      POSTGRES_DB: techeer
+    ports:
+      - '5432:5432'
+    volumes:
+      - my_db:/var/lib/postgresql/data
+
+  db-viewer:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    ports:
+      - '3001:3001'
+    volumes:
+      - pgadmin_data_dev:/var/lib/pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=test@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=test
+      - PGADMIN_LISTEN_PORT=3001
+    depends_on:
+      - db
+
+volumes:
+  my_db:
+  pgadmin_data_dev:
