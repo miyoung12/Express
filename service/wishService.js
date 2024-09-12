@@ -35,6 +35,7 @@ async function deleteWish(id) {
       where: { id: id },
     }
   );
+  return wish;
 }
 
 //소원 승인/거절
