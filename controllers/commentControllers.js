@@ -14,12 +14,18 @@ async function createComment(req, res) {
 
 //댓글 조회
 async function getComments(req, res) {
-  //   const wishId = req.query['wish_id'];
-  //   const parsedWishId = parseInt(wishId);
   const wishId = parseInt(req.query['wish_id']);
+  let limit = req.query['limit'];
+  let page = req.query['page'];
+  if (!limit) {
+    limit = 10;
+  }
+  if (!page) {
+    page = 1;
+  }
   try {
     console.log('wishId:', wishId);
-    const comments = await commentService.findAllComment(wishId);
+    const comments = await commentService.findAllComment(wishId, limit, page);
     res.status(200).json({ comments: comments });
   } catch (error) {
     res.status(404).json({ error: error.message });

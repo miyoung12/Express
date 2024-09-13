@@ -1,4 +1,5 @@
 const { Wish } = require('../models/wish');
+const { Op } = require('sequelize');
 
 //소원 등록
 async function createWish(wishData) {
@@ -11,10 +12,24 @@ async function createWish(wishData) {
 }
 
 //소원 목록 조회
-async function findAllWishes(confirm) {
+async function findAllWishes(confirm, limit, page, title, content, category) {
+  //offset 페이지네이션
+  const offset = (page - 1) * limit;
+
+  // 검색 기능 추가(title, content, category 빈 값일 때 처리)
+  const whereCondition = {
+    is_confirm: confirm,
+    is_deleted: false,
+    ...(title && { title: { [Op.like]: `%${title}%` } }), // title이 있으면 LIKE 조건 추가
+    ...(content && { content: { [Op.like]: `%${content}%` } }), // content가 있으면 LIKE 조건 추가
+    ...(category && { category: { [Op.eq]: category } }), // category가 있으면 일치하는 조건 추가
+  };
+
   return await Wish.findAll({
-    where: { is_confirm: confirm, is_deleted: false },
+    where: whereCondition,
     order: [['created_at', 'DESC']], //생성된 날짜 순으로 정렬
+    offset: offset,
+    limit: limit,
   });
 }
 

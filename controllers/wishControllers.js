@@ -15,9 +15,20 @@ async function createWish(req, res) {
 async function getAllWishes(req, res) {
   //승인, 미승인 별로 조회(쿼리 파라미터)
   const is_confirm = req.query['is_confirm'];
-  console.log(is_confirm);
+  let limit = req.query['limit'];
+  let page = req.query['page'];
+  const title = req.query['title'];
+  const content = req.query['content'];
+  const category = req.query['category'];
+
+  if (!limit) {
+    limit = 10;
+  }
+  if (!page) {
+    page = 1;
+  }
   try {
-    const wishes = await wishService.findAllWishes(is_confirm);
+    const wishes = await wishService.findAllWishes(is_confirm, limit, page, title, content, category);
     res.status(200).json({ wishes: wishes });
   } catch (error) {
     res.status(404).json({ error: error.message });

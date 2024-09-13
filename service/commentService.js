@@ -11,9 +11,10 @@ async function createComment(commentData) {
 }
 
 //댓글 조회
-async function findAllComment(wishId) {
+async function findAllComment(wishId, limit, page) {
+  const offset = (page - 1) * limit;
   try {
-    return await Comment.findAll({ where: { wish_id: wishId, is_deleted: false } });
+    return await Comment.findAll({ where: { wish_id: wishId, is_deleted: false }, limit: limit, offset: offset });
   } catch (error) {
     console.error('Error creating comments:', error);
     throw error;
