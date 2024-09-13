@@ -1,6 +1,33 @@
 const wishService = require('../service/wishService');
 
-// 소원 등록
+/**
+ * @swagger
+ * /wish:
+ *   post:
+ *     summary: Create a new wish
+ *     description: Register a new wish with title, content, and category.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 example: "My New Wish"
+ *               content:
+ *                 type: string
+ *                 example: "I wish for a new car."
+ *               category:
+ *                 type: string
+ *                 example: "Personal"
+ *     responses:
+ *       201:
+ *         description: Wish created successfully
+ *       500:
+ *         description: Internal server error
+ */
 async function createWish(req, res) {
   const { title, content, category } = req.body;
   try {
@@ -11,9 +38,54 @@ async function createWish(req, res) {
   }
 }
 
-//소원 목록 조회
+/**
+ * @swagger
+ * /wish/all:
+ *   get:
+ *     summary: Retrieve all wish
+ *     description: Get a list of all wish with optional filters for confirmation, title, content, and category.
+ *     parameters:
+ *       - in: query
+ *         name: is_confirm
+ *         schema:
+ *           type: string
+ *           enum: [confirm, pending, reject]
+ *         description: Filter by confirmation status.
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           example: 10
+ *         description: The number of wish to return.
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *         description: The page number for pagination.
+ *       - in: query
+ *         name: title
+ *         schema:
+ *           type: string
+ *         description: Filter by title.
+ *       - in: query
+ *         name: content
+ *         schema:
+ *           type: string
+ *         description: Filter by content.
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *           enum: ['job', 'health', 'human', 'money', 'goal', 'grade', 'etc']
+ *         description: Filter by category.
+ *     responses:
+ *       200:
+ *         description: A list of wish
+ *       404:
+ *         description: wish not found
+ */
 async function getAllWishes(req, res) {
-  //승인, 미승인 별로 조회(쿼리 파라미터)
   const is_confirm = req.query['is_confirm'];
   let limit = req.query['limit'];
   let page = req.query['page'];
@@ -28,14 +100,32 @@ async function getAllWishes(req, res) {
     page = 1;
   }
   try {
-    const wishes = await wishService.findAllWishes(is_confirm, limit, page, title, content, category);
-    res.status(200).json({ wishes: wishes });
+    const wish = await wishService.findAllWishes(is_confirm, limit, page, title, content, category);
+    res.status(200).json({ wish: wish });
   } catch (error) {
     res.status(404).json({ error: error.message });
   }
 }
 
-//소원 단일 조회
+/**
+ * @swagger
+ * /wish:
+ *   get:
+ *     summary: Get a wish by ID
+ *     description: Retrieve a specific wish by its ID.
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The ID of the wish.
+ *     responses:
+ *       200:
+ *         description: The details of the wish
+ *       404:
+ *         description: Wish not found
+ */
 async function getWish(req, res) {
   const id = req.query['id'];
   try {
@@ -46,7 +136,25 @@ async function getWish(req, res) {
   }
 }
 
-//소원 삭제
+/**
+ * @swagger
+ * /wish:
+ *   delete:
+ *     summary: Delete a wish by ID
+ *     description: Delete a specific wish by its ID.
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The ID of the wish to delete.
+ *     responses:
+ *       200:
+ *         description: Wish deleted successfully
+ *       404:
+ *         description: Wish not found
+ */
 async function deleteWish(req, res) {
   const id = req.query['id'];
   try {
@@ -57,7 +165,32 @@ async function deleteWish(req, res) {
   }
 }
 
-//소원 승인/거절
+/**
+ * @swagger
+ * /wish:
+ *   patch:
+ *     summary: Update wish confirmation status
+ *     description: Approve or reject a wish by updating its confirmation status.
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The ID of the wish.
+ *       - in: query
+ *         name: is_confirm
+ *         schema:
+ *           type: string
+ *           enum: [confirm, pending, reject]
+ *         required: true
+ *         description: Confirmation status (true for approved, false for rejected).
+ *     responses:
+ *       200:
+ *         description: Wish confirmation status updated successfully
+ *       404:
+ *         description: Wish not found
+ */
 async function updateWish(req, res) {
   const id = req.query['id'];
   const confirm = req.query['is_confirm'];
